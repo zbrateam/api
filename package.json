@@ -1,0 +1,16 @@
+{
+  "name": "reddit-news",
+  "version": "1.0.0",
+  "description": "Generates a JSON file with only the fields that are used by Zebra's Reddit news feature",
+  "main": "index.js",
+  "private": true,
+  "author": "absidue",
+  "license": "GPL-3.0-or-later",
+  "dependencies": {
+    "got": "^12.0.1"
+  },
+  "engines": {
+    "node": ">=17.6.0"
+  },
+  "type": "module"
+}

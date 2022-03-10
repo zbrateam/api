@@ -102,11 +102,7 @@ function createTags(title, postTag) {
 }
 
 function writeToFile(posts) {
-	if (!existsSync('./docs')) {
-		mkdirSync('./docs');
-	}
-
-	writeFileSync('docs/reddit-news.json', JSON.stringify({
+	writeFileSync('reddit-news.json', JSON.stringify({
 		data: posts
 	}));
 }

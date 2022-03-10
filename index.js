@@ -1,4 +1,4 @@
-import { writeFileSync, mkdirSync, existsSync } from 'node:fs';
+import { writeFileSync } from 'node:fs';
 import { got } from 'got';
 
 const FREE_PAID_REGEX = /\[\s*(free|paid)\s*\]/i;

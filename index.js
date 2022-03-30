@@ -26,7 +26,7 @@ for (const { data } of response.data.children) {
 
 	posts.push({
 		title: title,
-		url: data.url,
+		url: `https://www.reddit.com${data.permalink}`,
 		thumbnail: thumbnail,
 		tags: tags,
 		created: data.created_utc
@@ -43,8 +43,8 @@ writeToFile(posts);
 
 
 function validatePost(post) {
-	if (!post.url || post.url.length === 0 || !(new URL(post.url))) {
-		throw new Error('Post URL missing, did they change the JSON?');
+	if (!post.permalink || post.permalink.length === 0 || !(new URL(`https://www.reddit.com${post.permalink}`))) {
+		throw new Error('Post permalink missing, did they change the JSON?');
 	}
 
 	if (!post.link_flair_css_class || post.link_flair_css_class.length === 0) {

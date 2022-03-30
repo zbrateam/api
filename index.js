@@ -7,39 +7,40 @@ const url = new URL('https://www.reddit.com/r/jailbreak/search.json');
 
 url.searchParams.append('q', 'subreddit:jailbreak (flair:Release OR flair:Update OR flair:Upcoming OR flair:News)');
 url.searchParams.append('restrict_sr', 'on');
-url.searchParams.append('sort', 'relevance');
 url.searchParams.append('t', 'month');
 
-const response = await got.get(url).json();
 
-const posts = [];
+await generateNews('relevance');
+await generateNews('new');
 
-for (const { data } of response.data.children) {
 
-	validatePost(data);
+async function generateNews(sortBy) {
 
-	const thumbnail = getThumbnail(data);
+	url.searchParams.set('sort', sortBy);
+	const response = await got.get(url).json();
 
-	const title = cleanupTitle(data.title);
+	const posts = [];
 
-	const tags = createTags(data.title, data.link_flair_css_class);
+	for (const { data } of response.data.children) {
 
-	posts.push({
-		title: title,
-		url: `https://www.reddit.com${data.permalink}`,
-		thumbnail: thumbnail,
-		tags: tags,
-		created: data.created_utc
-	});
+		validatePost(data);
+
+		const thumbnail = getThumbnail(data);
+		const title = cleanupTitle(data.title);
+		const tags = createTags(data.title, data.link_flair_css_class);
+
+		posts.push({
+			title: title,
+			url: `https://www.reddit.com${data.permalink}`,
+			thumbnail: thumbnail,
+			tags: tags
+		});
+	}
+
+	if (posts.length === 0) throw new Error('No reddit news available. Houston we have a problem. Like seriously this is not good.');
+
+	writeToFile(posts, sortBy);
 }
-
-if (posts.length === 0) throw new Error('No reddit news available. Houston we have a problem. Like seriously this is not good.');
-
-
-posts.sort((a, b) => a.created > b.created);
-posts.forEach(post => delete post.created);
-
-writeToFile(posts);
 
 
 function validatePost(post) {
@@ -101,8 +102,12 @@ function createTags(title, postTag) {
 	return match ? `${postTag},${match[1].toLowerCase()}` : postTag;
 }
 
-function writeToFile(posts) {
-	writeFileSync('reddit-news.json', JSON.stringify({
+function writeToFile(posts, suffix) {
+	const filename = `reddit-news-${suffix}.json`;
+
+	writeFileSync(filename, JSON.stringify({
 		data: posts
 	}));
+
+	console.log(`Written news sorted by ${suffix} to ${filename}`);
 }

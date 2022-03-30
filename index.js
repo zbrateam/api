@@ -16,6 +16,8 @@ await generateNews('new');
 
 async function generateNews(sortBy) {
 
+	const sortByCreated = sortBy !== 'new';
+
 	url.searchParams.set('sort', sortBy);
 	const response = await got.get(url).json();
 
@@ -33,11 +35,17 @@ async function generateNews(sortBy) {
 			title: title,
 			url: `https://www.reddit.com${data.permalink}`,
 			thumbnail: thumbnail,
-			tags: tags
+			tags: tags,
+			created: sortByCreated ? data.created_utc : undefined
 		});
 	}
 
 	if (posts.length === 0) throw new Error('No reddit news available. Houston we have a problem. Like seriously this is not good.');
+
+	if (sortByCreated) {
+		posts.sort((a, b) => a.created > b.created);
+		posts.forEach(post => delete post.created);
+	}
 
 	writeToFile(posts, sortBy);
 }

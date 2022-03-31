@@ -43,7 +43,7 @@ async function generateNews(sortBy) {
 	if (posts.length === 0) throw new Error('No reddit news available. Houston we have a problem. Like seriously this is not good.');
 
 	if (sortByCreated) {
-		posts.sort((a, b) => a.created > b.created);
+		posts.sort((a, b) => b.created - a.created);
 		posts.forEach(post => delete post.created);
 	}
 

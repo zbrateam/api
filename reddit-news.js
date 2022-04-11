@@ -1,4 +1,4 @@
-import { writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
 import { got } from 'got';
 
 const FREE_PAID_REGEX = /\[\s*(free|paid)\s*\]/i;
@@ -10,8 +10,14 @@ url.searchParams.append('restrict_sr', 'on');
 url.searchParams.append('t', 'month');
 
 
-await generateNews('relevance');
-await generateNews('new');
+if (!existsSync('reddit-news')) {
+	mkdirSync('reddit-news');
+}
+
+await Promise.all([
+	generateNews('relevance'),
+	generateNews('new')
+]);
 
 
 async function generateNews(sortBy) {
@@ -110,12 +116,12 @@ function createTags(title, postTag) {
 	return match ? `${postTag},${match[1].toLowerCase()}` : postTag;
 }
 
-function writeToFile(posts, suffix) {
-	const filename = `reddit-news-${suffix}.json`;
+function writeToFile(posts, sort) {
+	const filename = `reddit-news/${sort}.json`;
 
 	writeFileSync(filename, JSON.stringify({
 		data: posts
 	}));
 
-	console.log(`Written news sorted by ${suffix} to ${filename}`);
+	console.log(`Written news sorted by ${sort} to ${filename}`);
 }

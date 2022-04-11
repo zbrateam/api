@@ -31,19 +31,19 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Shrink news
-        run: node ./index.js
+        run: node ./reddit-news.js
 
       - name: Checkout gh-pages
         id: checkout
         run: |
-          git add reddit-news-relevance.json reddit-news-new.json
+          git add reddit-news/relevance.json reddit-news/new.json
           git stash
           git checkout gh-pages
 
           # Prevent conflicts by overwriting the files with the ones in the stash
-          git checkout stash -- reddit-news-relevance.json reddit-news-new.json
+          git checkout stash -- reddit-news/relevance.json reddit-news/new.json
 
-          changes=$(git status --porcelain reddit-news-relevance.json reddit-news-new.json | wc -l)
+          changes=$(git status --porcelain reddit-news/relevance.json reddit-news/new.json | wc -l)
           echo "::set-output name=changes::$changes"
 
       - name: Commit and push changes
@@ -52,9 +52,9 @@ jobs:
           git config --global user.name 'zbrabot'
           git config --global user.email 'zbrabot@users.noreply.github.com'
 
-          # Make sure only the reddit-news-relevance.json and reddit-news-new.json files get committed
+          # Make sure only the reddit-news/relevance.json and reddit-news/new.json files get committed
           git reset
-          git add reddit-news-relevance.json reddit-news-new.json
-          git commit --message "chore: automated update at $(date '+%F %T')"
+          git add reddit-news/relevance.json reddit-news/new.json
+          git commit --message "chore(reddit-news): automated update at $(date '+%F %T')"
 
           git push

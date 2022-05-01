@@ -1,0 +1,58 @@
+name: 'Changelog'
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: 'Changelog'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Clone repository
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2.2.1
+        with:
+          version: latest
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 17
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate changelog
+        run: node ./changelog.js
+
+      - name: Checkout gh-pages
+        id: checkout
+        run: |
+          git add changelog/depiction.json
+          git stash
+          git checkout gh-pages
+
+          # Prevent conflicts by overwriting the file with the one in the stash
+          git checkout stash -- changelog/depiction.json
+
+          changes=$(git status --porcelain changelog/depiction.json | wc -l)
+          echo "::set-output name=changes::$changes"
+
+      - name: Commit and push changes
+        if: ${{ steps.checkout.outputs.changes != 0 }}
+        run: |
+          git config --global user.name 'zbrabot'
+          git config --global user.email 'zbrabot@users.noreply.github.com'
+
+          # Make sure only the changelog/depiction.json file gets committed
+          git reset
+          git add changelog/depiction.json
+          git commit --message "chore(changelog): automated update at $(date '+%F %T')"
+
+          git push

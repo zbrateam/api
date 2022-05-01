@@ -5,22 +5,24 @@ if (!existsSync('changelog')) {
 	mkdirSync('changelog');
 }
 
-await generateDepiction();
-
-async function generateDepiction() {
-	const response = await got.get('https://api.github.com/repos/zbrateam/Zebra/releases', {
+const response = await got.get('https://api.github.com/repos/zbrateam/Zebra/releases', {
 		headers: {
 			Accept: 'application/vnd.github.v3.raw+json'
 		}
 	}).json();
 
+generateDepiction(response),
+generateData(response)
+
+
+function generateDepiction(response) {
 	const changelog = [];
 
 	for (const item of response) {
 		changelog.push({
 			name: 'HeadingView',
 			properties: {
-				text: item.name
+				text: item.tag_name.substring(1)
 			}
 		});
 
@@ -49,4 +51,16 @@ async function generateDepiction() {
 	}
 
 	writeFileSync('changelog/depiction.json', JSON.stringify(depiction));
+}
+
+function generateData(response) {
+	const changelog = response.map(item => {
+		return {
+			version: item.tag_name.substring(1),
+			date: item.published_at,
+			body: item.body
+		};
+	});
+
+	writeFileSync('changelog/data.json', JSON.stringify({ data: changelog }));
 }

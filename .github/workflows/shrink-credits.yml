@@ -1,0 +1,56 @@
+name: 'Shrink credits'
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - credits.json
+
+jobs:
+  build:
+    name: 'Shrink credits'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Shrink credits
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            const { readFileSync, writeFileSync } = require('fs');
+
+            const contents = readFileSync('src/credits.json');
+            const shrunk = JSON.stringify(JSON.parse(contents));
+
+            writeFileSync('credits.json', shrunk);
+
+      - name: Checkout gh-pages
+        id: checkout
+        run: |
+          git add credits.json
+          git stash
+          git checkout gh-pages
+
+          # Prevent conflicts by overwriting the file with the one in the stash
+          git checkout stash -- credits.json
+
+          changes=$(git status --porcelain credits.json | wc -l)
+          echo "::set-output name=changes::$changes"
+
+      - name: Commit and push changes
+        if: ${{ steps.checkout.outputs.changes != 0 }}
+        run: |
+          git config --global user.name 'zbrabot'
+          git config --global user.email 'zbrabot@users.noreply.github.com'
+
+          # Make sure only the credits.json file gets committed
+          git reset
+          git add credits.json
+          git commit --message "chore(credits): automated update at $(date '+%F %T')"
+
+          git push

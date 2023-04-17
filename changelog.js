@@ -1,18 +1,18 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { got } from 'got';
 
 if (!existsSync('changelog')) {
 	mkdirSync('changelog');
 }
 
-const response = await got.get('https://api.github.com/repos/zbrateam/Zebra/releases', {
+const response = await fetch('https://api.github.com/repos/zbrateam/Zebra/releases', {
 		headers: {
 			Accept: 'application/vnd.github.v3.raw+json'
 		}
-	}).json();
+	});
+const json = await response.json();
 
-generateDepiction(response),
-generateData(response)
+generateDepiction(json),
+generateData(json)
 
 
 function generateDepiction(response) {

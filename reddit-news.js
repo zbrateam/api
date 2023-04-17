@@ -1,5 +1,4 @@
 import { existsSync, mkdirSync, writeFileSync } from 'node:fs';
-import { got } from 'got';
 
 const FREE_PAID_REGEX = /\[\s*(free|paid)\s*\]/i;
 
@@ -25,26 +24,26 @@ async function generateNews(sortBy) {
 	const sortByCreated = sortBy !== 'new';
 
 	url.searchParams.set('sort', sortBy);
-	const response = await got.get(url).json();
+	const response = await fetch(url);
+	const json = await response.json();
 
 	const posts = [];
 
-	for (const { data } of response.data.children) {
+	for (const { data } of json.data.children) {
+    validatePost(data);
 
-		validatePost(data);
+    const thumbnail = getThumbnail(data);
+    const title = cleanupTitle(data.title);
+    const tags = createTags(data.title, data.link_flair_css_class);
 
-		const thumbnail = getThumbnail(data);
-		const title = cleanupTitle(data.title);
-		const tags = createTags(data.title, data.link_flair_css_class);
-
-		posts.push({
-			title: title,
-			url: `https://www.reddit.com${data.permalink}`,
-			thumbnail: thumbnail,
-			tags: tags,
-			created: sortByCreated ? data.created_utc : undefined
-		});
-	}
+    posts.push({
+      title: title,
+      url: `https://www.reddit.com${data.permalink}`,
+      thumbnail: thumbnail,
+      tags: tags,
+      created: sortByCreated ? data.created_utc : undefined
+    });
+  }
 
 	if (posts.length === 0) throw new Error('No reddit news available. Houston we have a problem. Like seriously this is not good.');
 

@@ -5,11 +5,8 @@
   "private": true,
   "author": "absidue",
   "license": "GPL-3.0-or-later",
-  "dependencies": {
-    "got": "^12.0.3"
-  },
   "engines": {
-    "node": ">=17.6.0"
+    "node": ">=18.0.0"
   },
   "type": "module"
 }

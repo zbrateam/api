@@ -24,8 +24,8 @@ async function generateNews(sortBy) {
 
 	const posts = [
 		{
-			title: '⚠️ Don’t Let Reddit Kill 3rd Party Apps!',
-			url: 'https://www.theverge.com/2023/6/5/23749188/reddit-subreddit-private-protest-api-changes-apollo-charges',
+			title: 'r/jailbreak’s stance in Reddit’s recent API policy change',
+			url: 'https://www.reddit.com/r/jailbreak/comments/141hva3/meta_rjailbreaks_stance_in_reddits_recent_api/',
 			thumbnail: 'https://getzbra.com/assets/reddit_api_warning.jpg',
 			tags: '',
 			created: sortByCreated ? new Date('2030-01-01T00:00:00Z') : undefined

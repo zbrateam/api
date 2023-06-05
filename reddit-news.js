@@ -20,30 +20,44 @@ await Promise.all([
 
 
 async function generateNews(sortBy) {
-
 	const sortByCreated = sortBy !== 'new';
+
+	const posts = [
+		{
+			title: '⚠️ Don’t Let Reddit Kill 3rd Party Apps!',
+			url: 'https://www.theverge.com/2023/6/5/23749188/reddit-subreddit-private-protest-api-changes-apollo-charges',
+			thumbnail: 'https://getzbra.com/assets/reddit_api_warning.jpg',
+			tags: '',
+			created: sortByCreated ? new Date('2030-01-01T00:00:00Z') : undefined
+		}
+	];
+
+	// TEMPORARY: Blackout for Reddit protest June 12th - 13th PST
+	if (Date.now() > new Date('2023-06-12T00:00:00-0700') && Date.now() < new Date('2023-06-14T00:00:00-0700')) {
+		delete posts[0].created;
+		writeToFile(posts, sortBy);
+		return;
+	}
 
 	url.searchParams.set('sort', sortBy);
 	const response = await fetch(url);
 	const json = await response.json();
 
-	const posts = [];
-
 	for (const { data } of json.data.children) {
-    validatePost(data);
+		validatePost(data);
 
-    const thumbnail = getThumbnail(data);
-    const title = cleanupTitle(data.title);
-    const tags = createTags(data.title, data.link_flair_css_class);
+		const thumbnail = getThumbnail(data);
+		const title = cleanupTitle(data.title);
+		const tags = createTags(data.title, data.link_flair_css_class);
 
-    posts.push({
-      title: title,
-      url: `https://www.reddit.com${data.permalink}`,
-      thumbnail: thumbnail,
-      tags: tags,
-      created: sortByCreated ? data.created_utc : undefined
-    });
-  }
+		posts.push({
+			title,
+			url: `https://www.reddit.com${data.permalink}`,
+			thumbnail,
+			tags,
+			created: sortByCreated ? data.created_utc : undefined
+		});
+	}
 
 	if (posts.length === 0) throw new Error('No reddit news available. Houston we have a problem. Like seriously this is not good.');
 

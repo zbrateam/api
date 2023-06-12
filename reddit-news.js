@@ -24,8 +24,8 @@ async function generateNews(sortBy) {
 
 	const posts = [
 		{
-			title: 'r/jailbreak’s stance in Reddit’s recent API policy change',
-			url: 'https://www.reddit.com/r/jailbreak/comments/141hva3/meta_rjailbreaks_stance_in_reddits_recent_api/',
+			title: 'News is temporarily unavailable due to Reddit protest – tap for more info',
+			url: 'https://procursus.social/@zebra/110495668672830902',
 			thumbnail: 'https://getzbra.com/assets/reddit_api_warning.jpg',
 			tags: '',
 			created: sortByCreated ? new Date('2030-01-01T00:00:00Z') : undefined
@@ -33,7 +33,7 @@ async function generateNews(sortBy) {
 	];
 
 	// TEMPORARY: Blackout for Reddit protest June 12th - 13th PST
-	if (Date.now() > new Date('2023-06-12T00:00:00-0700') && Date.now() < new Date('2023-06-14T00:00:00-0700')) {
+	if (Date.now() > new Date('2023-06-12T00:00:00-0700')) {
 		delete posts[0].created;
 		writeToFile(posts, sortBy);
 		return;

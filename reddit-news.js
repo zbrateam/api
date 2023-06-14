@@ -22,28 +22,14 @@ await Promise.all([
 async function generateNews(sortBy) {
 	const sortByCreated = sortBy !== 'new';
 
-	const posts = [
-		{
-			title: 'News is temporarily unavailable due to Reddit protest – tap for more info',
-			url: 'https://procursus.social/@zebra/110495668672830902',
-			thumbnail: 'https://getzbra.com/assets/reddit_api_warning.jpg',
-			tags: '',
-			created: sortByCreated ? new Date('2030-01-01T00:00:00Z') : undefined
-		}
-	];
-
-	// TEMPORARY: Blackout for Reddit protest June 12th - 13th PST
-	if (Date.now() > new Date('2023-06-12T00:00:00-0700')) {
-		delete posts[0].created;
-		writeToFile(posts, sortBy);
-		return;
-	}
+	const posts = [];
 
 	url.searchParams.set('sort', sortBy);
 	const response = await fetch(url);
 	const json = await response.json();
 
-	for (const { data } of json.data.children) {
+	const items = json.data?.children ?? [];
+	for (const { data } of items) {
 		validatePost(data);
 
 		const thumbnail = getThumbnail(data);
@@ -58,8 +44,6 @@ async function generateNews(sortBy) {
 			created: sortByCreated ? data.created_utc : undefined
 		});
 	}
-
-	if (posts.length === 0) throw new Error('No reddit news available. Houston we have a problem. Like seriously this is not good.');
 
 	if (sortByCreated) {
 		posts.sort((a, b) => b.created - a.created);
